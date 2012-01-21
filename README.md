@@ -24,7 +24,7 @@
       
    4. Execute `./gen_nginx_bl.py` as root and check the console output for error messages.
    
-   5. Check the generated blacklist file found under `NGINX_CONF_DIR/NGINX_DROP_CONF`. It should contain entrys in the form of
+   5. Check the generated blacklist file found under `NGINX_CONF_DIR/NGINX_DROP_CONF`. It should contain entries in the form of
    
       `deny 103.10.188.0/22;`
       
