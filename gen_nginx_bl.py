@@ -124,14 +124,14 @@ def getFile(url):
   
 def collectBlockedIps():
   """
-  Generates a list of IP ranges to be blocked. Result is used by writeNginxBlocklist to
+  Generates a list of unique IP ranges to be blocked. Result is used by writeNginxBlocklist to
   write the actual blocklist file.
   """
   blocked_ips = []
   for url in BLOCKLISTS:
     blocklist = getFile(url)
     blocked_ips.extend(parseBlocklist(blocklist))
-  return blocked_ips
+  return sorted(list(set(blocked_ips)))
     
 def parseBlocklist(blocklist):
   """
