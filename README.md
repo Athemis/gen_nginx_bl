@@ -31,7 +31,7 @@
    6. Consider adding the script to your cron jobs.
    
 
-## Adding a cron jobs
+## Adding a cron job
   
    To run the script once a day, copy or symlink it to `/etc/cron.daily`:
    
