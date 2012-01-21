@@ -11,7 +11,7 @@
 
    1. Clone the git repository from github:
    
-      `git clone https://github.com/Athemis/gen_nginx_bl`
+      `git clone https://github.com/Athemis/gen_nginx_bl.git`
       
    2. Open `gen_nginx_bl.py` with a text editor of your choice and alter the variables on top to meet your system.
       Especially take care of `NGINX_CONF_DIR` which must point to the directory containing your `nginx.conf` and `LOG_FILE` which must point to an existing path. Make sure that your nginx executable is in your PATH or alternatively point `NGINX_CMD` to the full path of the nginx executable.
