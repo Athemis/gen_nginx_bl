@@ -6,6 +6,14 @@
    accessing your nginx webserver. This is done by using services like the [Spamhaus Don't Route or Peer list (DROP)](www.spamhaus.org/drop/).
    The script is written in a way that it can be easily extended to make use of additional services that use a similar syntax to Spamhaus.
    
+## Requirements
+
+   You need a working Python 3 installation. The script is looking for an executable named `python` in your PATH. You can check
+   which version of `python` by running `python -- version` from the command line. I tested the script with Python 3.2.2 but anything from
+   3.1 onwards should be sufficient.
+   
+   If your Python 3 executable is not named `python` but e.g. `python3` change the first line of the script to `#!/usr/bin/env python3`.
+   
 
 ## Installation
 
