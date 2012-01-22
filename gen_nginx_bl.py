@@ -31,7 +31,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # BLOCKLISTS            = ['http://www.list1.com', 'http://www.list2.com', 'http://www.list3.com']
 BLOCKLISTS            = ['http://www.spamhaus.org/drop/drop.lasso']
 
-NGINX_CONF_DIR        = '/etc/nginx/conf'             # Path to your nginx.conf
+NGINX_CONF_DIR        = '/etc/nginx'                  # Path to your nginx.conf
 NGINX_DROP_CONF       = 'blocklist.conf'              # File that will hold the IP ranges to be blocked. 
                                                       # Be sure to add "include <Value of NGINX_DROP_CONF>" to your nginx.conf
 NGINX_EXEC            = 'nginx'                       # Path to your nginx executable. No need to change, if it is in your PATH.
@@ -53,6 +53,28 @@ from urllib.parse import urlparse
 from urllib.request import Request, urlopen
 from urllib.error import URLError
 from subprocess import check_call, CalledProcessError
+
+class CIDRValidator:
+  """
+  Class for CIDR validation. This way we're efficiently reusing the regex objects.
+  """
+  def __init__(self): 
+    """
+    Compiling regex objects
+    """
+    self.cidr_ipv4_re = re.compile(r'^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(\d|[1-2]\d|3[0-2]))')
+    self.cidr_ipv6_re = re.compile(r'^\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?\s*(\/(\d|\d\d|1[0-1]\d|12[0-8]))')
+
+  def validate(self, ip_cidr):
+    """
+    Check if we are dealing with a valid CIDR range and return only valid CIDR values.
+    """
+    if self.cidr_ipv4_re.match(ip_cidr):                # Check for valid IPv4 CIDR
+      return self.cidr_ipv4_re.match(ip_cidr).group(0)
+    elif self.cidr_ipv6_re.match(ip_cidr):              # Check for valid IPv6 CIDR
+      return self.cidr_ipv6_re.match(ip_cidr).group(0)
+    else:
+      return False
 
 def setupLogHandler():
   """
@@ -120,7 +142,7 @@ def getFile(url):
   else: # Throw exception if sanity check fails
     msg = '\"%s\" not well-formed. Expecting \"http://\" at the beginning!' % url
     logging.critical(msg)
-    raise URLError(msg)
+    raise URLError(msg)    
   
 def collectBlockedIps():
   """
@@ -135,16 +157,15 @@ def collectBlockedIps():
     
 def parseBlocklist(blocklist):
   """
-  Parses the received file object line by line, looking for IP ranges in the
-  format XXX.XXX.XXX.XXX.X/XX with X as digit.
+  Parses the received file object line by line, looking for CIDR IP ranges (both IPv4 and IPv6).
   """
   ips = [] # List holding the detected IP ranges
   logging.debug('Scanning for IP ranges in %s.' % blocklist.geturl())
+  validator = CIDRValidator() # Setting up new validator for CIDR address ranges
   for line in blocklist: # Iterate through file object
     line = line.decode('utf8').rstrip('\n') # Convert from byte to utf8-encoded string
-    result = re.match('^[1234567890./]+', line) # Search for IP ranges by regular expression
-    if result: # If a match is found...
-      ip = result.group(0) 
+    ip = validator.validate(line)
+    if ip: # If a match is found...
       logging.debug('Found IP range %s.' % ip)
       ips.append(ip) # ...add it to the list
     else:
@@ -171,7 +192,7 @@ def writeNginxBlocklist(ips):
       logging.debug('Adding IP range: %s' % ip)
       f.write('deny %s;\n' % ip) # write rule to file
     f.close()
-    logging.info('Writing to %s/%s was successful!' % (NGINX_CONF_DIR, NGINX_DROP_CONF))
+    logging.info('Writing %d rules to %s/%s was successful!' % (len(ips), NGINX_CONF_DIR, NGINX_DROP_CONF))
   else:
     # Throw a warning if no list was generated
     logging.warning('Generated blocklist was empty! The old list in %s/%s was _not_ overwritten!' % (NGINX_CONF_DIR, 
