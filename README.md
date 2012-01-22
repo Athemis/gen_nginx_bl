@@ -9,7 +9,7 @@
 ## Requirements
 
    You need a working Python 3 installation. The script is looking for an executable named `python` in your PATH. You can check
-   which version of `python` by running `python -- version` from the command line. I tested the script with Python 3.2.2 but anything from
+   which version of `python` by running `python --version` from the command line. I tested the script with Python 3.2.2 but anything from
    3.1 onwards should be sufficient.
    
    If your Python 3 executable is not named `python` but e.g. `python3` change the first line of the script to `#!/usr/bin/env python3`.
