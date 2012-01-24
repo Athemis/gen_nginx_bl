@@ -5,7 +5,12 @@
    This script will help you to prevent spam network IPs from
    accessing your nginx webserver. This is done by using services like the [Spamhaus Don't Route or Peer list (DROP)](www.spamhaus.org/drop/).
    The script is written in a way that it can be easily extended to make use of additional services that use a similar syntax to Spamhaus.
-   
+
+   If you find this script useful, please flattr me:
+
+   [![Flattr this git repo](http://api.flattr.com/button/flattr-badge-large.png)]
+   (https://flattr.com/submit/auto?user_id=Athemis&url=https://github.com/Athemis/gen_nginx_bl&title=gen_nginx_bl&language=&tags=github&category=software)   
+
 ## Requirements
 
    You need a working Python 3 installation. The script is looking for an executable named `python` in your PATH. You can check
