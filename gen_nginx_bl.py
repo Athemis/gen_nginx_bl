@@ -50,7 +50,7 @@ import logging
 import re
 
 from urllib.parse import urlparse
-from urllib.request import Request, urlopen
+from urllib.request import Request, urlopen, build_opener
 from urllib.error import URLError
 from subprocess import check_call, CalledProcessError
 
@@ -145,8 +145,10 @@ def getFile(url):
   """
   if checkUrl(url): # Do sanity check for url
     logging.info('Loading blocklist from %s' % url)
+    request = Request(url)
+    request.add_header('User-Agent', 'Mozilla/5.0')
     try:
-      response = urlopen(url)
+      response = urlopen(request)
     except URLError as e: # Catch server side errors
       if hasattr(e, 'reason'):
         logging.critical('Failed to reach server: %s' % e.reason)
