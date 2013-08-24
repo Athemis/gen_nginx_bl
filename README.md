@@ -37,7 +37,7 @@
       
    4. For **each** vhost that is supposed to use the blocklist, add the following lines to the `server` section:
    
-      if ($blocked) {
+      if ($is_blocked) {
           return 444; 
       }
       
@@ -45,7 +45,7 @@
    
    6. Check the generated blacklist file found under `NGINX_CONF_DIR/NGINX_DROP_CONF`. It should contain entries in the form of
    
-      `103.10.188.0/22;`
+      `103.10.188.0/22 1;`
       
    7. Consider adding the script to your cron jobs.
    
