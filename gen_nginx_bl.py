@@ -29,7 +29,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # You may add more blacklist URLs:
 # BLOCKLISTS            = ['http://www.list1.com', 'http://www.list2.com', 'http://www.list3.com']
-BLOCKLISTS            = ['http://www.spamhaus.org/drop/drop.txt' 'http://www.spamhaus.org/drop/edrop.txt']
+BLOCKLISTS            = ['http://www.spamhaus.org/drop/drop.txt', 'http://www.spamhaus.org/drop/edrop.txt']
 
 NGINX_CONF_DIR        = '/etc/nginx'                  # Path to your nginx.conf
 NGINX_DROP_CONF       = 'blocklist.conf'              # File that will hold the IP ranges to be blocked. 
